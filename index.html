@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<meta name="referrer" content="no-referrer">
+<title>Buka di Obsidian</title>
+<style>
+  :root {
+    color-scheme: light dark;
+    --bg: #faf9f5;
+    --text: #141413;
+    --muted: #6b6a64;
+    --accent: #b5532f;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #262624;
+      --text: #faf9f5;
+      --muted: #9c9a92;
+      --accent: #b9583a;
+    }
+  }
+  body {
+    display: flex;
+    min-height: 100vh;
+    margin: 0;
+    padding: 24px 16px;
+    box-sizing: border-box;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg);
+    color: var(--text);
+    font: 16px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    text-align: center;
+  }
+  main { width: 100%; max-width: 360px; }
+  #title { margin: 0 0 20px; font-size: 18px; font-weight: 600; overflow-wrap: anywhere; }
+  #open {
+    display: block;
+    padding: 14px 16px;
+    border-radius: 12px;
+    background: var(--accent);
+    color: #fff;
+    font-weight: 600;
+    text-decoration: none;
+  }
+  #file { display: inline-block; margin-top: 16px; padding: 6px; color: var(--muted); font-size: 14px; }
+  #hint { margin: 16px 0 0; color: var(--muted); font-size: 13px; }
+  .hidden { display: none !important; }
+</style>
+</head>
+<body>
+<main>
+  <p id="title">Membuka Obsidian…</p>
+  <a id="open" href="#">Buka di Obsidian</a>
+  <a id="file" class="hidden" href="#">Buka file catatannya saja</a>
+  <p id="hint">Kalau Obsidian belum terbuka sendiri, tekan tombol di atas.</p>
+</main>
+<script>
+  // The task reference stays in the URL fragment, which browsers never send to the server.
+  const params = new URLSearchParams(location.hash.slice(1));
+  const vault = params.get('v') || '';
+  const path = params.get('p') || '';
+  const title = params.get('t') || '';
+  const query = (fields) => new URLSearchParams(fields).toString().replace(/\+/g, '%20');
+  const openEl = document.getElementById('open');
+  const fileEl = document.getElementById('file');
+  const titleEl = document.getElementById('title');
+
+  if (!path) {
+    titleEl.textContent = 'Link ini tidak lengkap.';
+    openEl.classList.add('hidden');
+    document.getElementById('hint').classList.add('hidden');
+  } else {
+    const fileUrl = `obsidian://open?${query({ vault, file: path })}`;
+    // A title too long for a Telegram button is left out, and the note opens instead.
+    const taskUrl = title ? `obsidian://beranda-task?${query({ vault, path, title })}` : fileUrl;
+    titleEl.textContent = title || path;
+    openEl.href = taskUrl;
+    fileEl.href = fileUrl;
+    if (title) fileEl.classList.remove('hidden');
+    location.href = taskUrl;
+  }
+</script>
+</body>
+</html>
